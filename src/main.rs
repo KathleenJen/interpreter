@@ -1,4 +1,5 @@
 //Kathleen Jennings
+#[derive(Copy, Clone)]
 enum Primitive {
     Add,
     Multiply,
@@ -6,27 +7,24 @@ enum Primitive {
     Number(i32)
 }
 
-fn eval_prim(primitive: &Primitive) -> i32 {
-    match primitive {
-        Primitive::Number(val) => *val,
-        _ => 0
-    }
-}
-
 fn evaluate(array: Vec<Primitive>) -> i32 {
-    match array[0] {
-        Primitive::Add => { eval_prim(&array[1]) + eval_prim(&array[2])}
-        Primitive::Multiply => { eval_prim(&array[1]) * eval_prim(&array[2])}
-        Primitive::Subtract => { eval_prim(&array[1]) - eval_prim(&array[2])}
-        _ => 0
+    let element = &array[0];
+    let mut iter = array.iter();
+    iter.next();
+    match element {
+        Primitive::Add => { iter.fold(0, |total, next| total + evaluate(vec![*next])) }
+        Primitive::Multiply => { iter.fold(1, |total, next| total * evaluate(vec![*next])) }
+        //trying to use fold right because subtraction is not comutative, but it does not seem to be working
+        Primitive::Subtract => { iter.foldr(0, |total, next| total - evaluate(vec![*next])) }
+        Primitive::Number(val) => *val
     }
 }
 
 fn main() {
     let mut primitives = Vec::<Primitive>::new();
     primitives.push(Primitive::Subtract);
-    primitives.push(Primitive::Number(3));
-    primitives.push(Primitive::Number(4));
+    primitives.push(Primitive::Number(7));
+    primitives.push(Primitive::Number(1));
     let result = evaluate(primitives);
     println!("{}", result);
 }
